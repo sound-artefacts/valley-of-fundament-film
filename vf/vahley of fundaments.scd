@@ -119,7 +119,7 @@ wt = signal.asSignal(1024).asWavetable;
 (
 SynthDef.new(\run,{
 arg cor=0;
-var p,az,el,f1,f2,f3,f=0.01;
+var p,az,el,f1,f2,f3,f=0.1;
 az=Select.kr(cor,~azi);
 el=Select.kr(cor,~eli);
 p=Spherical(992,az,el);
@@ -146,7 +146,7 @@ Out.kr(~controlBus_sh.index,(Osc.kr(~sh.bufnum,f).abs));
 );
 	1.wait;
 ////animation routine
-~count=[2,4,2,4,2,4];
+~count=[1,1,1,2,1,2];
 ~animation=Synth.new(\run).register;
 ({
 var pla=0,az=0,el=0;
