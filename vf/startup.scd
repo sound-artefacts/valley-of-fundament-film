@@ -17,6 +17,7 @@ s.makeGui(w);
 ~controlBus_1 = Bus.control(s, 1);
 ~controlBus_2 = Bus.control(s, 1);
 ~controlBus_3 = Bus.control(s, 1);
+~timbr_dur=0.1;
 s.waitForBoot{
 Tdef(\drone, {
 //~controlBus = Bus.control(s, 1);
@@ -59,7 +60,7 @@ var silver_r=(1+2.sqrt), g=((1+5.sqrt)/2), azimuth, elevation;
 var nn=1.neg, n=0;
 var difaz, difel,rx=0,ry=0,rz=0;
 ~vertices = 32*32;
-~rotation=0;
+~rotation=1;~rotationx=0;~rotationy=0;~rotationz=0;~rx=0;~ry=0;~rz=0;
 ~tree= Routine({loop{
 ~azr=[]; ~elr=[]; ~cx = [];~cy = [];~cz = [];
 angle=0;
@@ -103,7 +104,7 @@ var x, y, z,rot;
 
 az = difaz.[n];
 el = difel.[n];
-rot=Spherical(1,az,el).rotateYZ(rx).rotateXZ(ry).rotateXY(rz);
+rot=Spherical(1,az,el).rotateYZ(~rx).rotateXZ(~ry).rotateXY(~rz);
 //x = cos(el) * cos(az);
 //y = cos(el) * sin(az);
 //z = sin(el);
@@ -111,15 +112,23 @@ x=rot.x; y=rot.y; z=rot.z;
 ~cx = ~cx ++ x; ~cy = ~cy ++ y; ~cz = ~cz ++ z;
 n = n + 1;
 };
-(
-rx=(rx +~rotation).wrap(0,2pi);
-ry=(ry +~rotation).wrap(0,2pi);
-rz=(rz +~rotation).wrap(0,2pi);
-);
-(4).wait;
+(~timbr_dur).wait;
 };});
 ~tree.play
 }.value;
+);
+(
+{
+Routine({loop{
+(
+~rx=(~rx +~rotationx).wrap(0,2pi);
+~ry=(~ry +~rotationy).wrap(0,2pi);
+~rz=(~rz +~rotationz).wrap(0,2pi);
+);
+(0.01).wait; // frame duration
+};
+}).play;
+}.defer
 );
 ////envelope sig
 		(
@@ -186,7 +195,7 @@ sustain=0.1;
 signal = Signal.sineFill(~signalSizee, ~arraye, [0]);
 signal = signal.rotate(signal.size div: 2);
 peak = signal.abs.maxIndex.max(1);
-rip = Env.new([0,1,0],[0.25,0.5],[4.neg,2]).asSignal(~signalSizee);
+rip = Env.new([0,1,0],[0.25,0.5],[4.neg,1]).asSignal(~signalSizee);
 rip = rip * (1 + (signal / tremolo));
 rip = rip.normalize;
 peak = peak.min(signal.size - 2).max(1);
@@ -521,8 +530,8 @@ word.do({|i| ~lseq = ~lseq ++ dictnotes[i.asSymbol];});
 ~incr=0;~ssc=26;~mix=0;~rect=16;~s=0;~azimuth=0;~elevation=0;
 ~alternating=[0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1];~hor=0;~lat=0;
 //~seq= Pseq([~dur.[0],Rest(~dur.[13.rand]),~dur.[1],Rest(~dur.[13.rand]),~dur.[2],Rest(~dur.[13.rand]),~dur.[3]] ,inf);
-TempoClock.default.tempo_(0.01);
-~timbr_dur=0.01;
+~tempo=1;
+TempoClock.default.tempo_(1);
 (
 {
 Routine({loop{
@@ -533,13 +542,19 @@ Routine({loop{
 }).play;
 }.defer
 );
+~c_az=pi.rand2;
+~c_el=pi.rand2;
 (
 {
 var x,y,z,px,py,pz;
 Routine({loop{
-x = Spherical(~vertices-1,~hor,~lat).x.round(1).asInteger.abs;
-y = Spherical(~vertices-1,~hor,~lat).y.round(1).asInteger.abs;
-z = Spherical(~vertices-1,~hor,~lat).z.round(1).asInteger.abs;
+//x = Spherical(~vertices-1,~hor,~lat).x.round(1).asInteger.abs;
+//y = Spherical(~vertices-1,~hor,~lat).y.round(1).asInteger.abs;
+//z = Spherical(~vertices-1,~hor,~lat).z.round(1).asInteger.abs;
+x = Spherical(~vertices-1,~c_az,~c_el).x.round(1).asInteger.abs;
+y = Spherical(~vertices-1,~c_az,~c_el).y.round(1).asInteger.abs;
+z = Spherical(~vertices-1,~c_az,~c_el).z.round(1).asInteger.abs;
+
 px=~cx.[x];
 py=~cy.[y];
 pz=~cz.[z];
@@ -550,7 +565,7 @@ pz=~cz.[z];
 }).play;
 }.defer
 );
-
+~clock = TempoClock(1);
 ~pattern = Pdef(\1,
 Pbind(\instrument, \synth,
 \dur, Pseq(~dur ,inf),\s_size,Pfunc { ~s_size }, \lowend,Pfunc { ~lowend }, \room,Pfunc { ~room },
@@ -562,7 +577,7 @@ Pbind(\instrument, \synth,
 ,\s3,Pfunc{(~vertices-1).rand.round(1).asInteger},\s4,Pfunc{(~vertices-1).rand.round(1).asInteger},
 \attack,  Pfunc { ~attack }, \dicay, Pfunc { ~decay }, \ssc, Pfunc{~ssc};
 ));
-~pattern.play;
+~pattern.play(~clock);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////gui
 (
@@ -683,21 +698,22 @@ Pen.fillStroke;
 ~sl1=Knob.new(~vw, Rect.new(50,50,sk, sk)).background_(Color.black).action_({
 arg obj;
 var value;
-value=obj.value.linexp(0,1,1/16,32).round(1/64).postln;
-TempoClock.default.tempo_(value);
+value=obj.value.linexp(0,1,1/16,16).round(1/64).postln;
+~clock.tempo_(value);
 });
 ~st1=StaticText(~vw,Rect(50,50+sk,sk,sk)).string_("tempo")
-.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',10));
+.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
 );
 (
 ~sl2=Knob.new(~vw, Rect.new(150,50,sk, sk)).background_(Color.black).action_({
 arg obj;
 var value;
-value=obj.value.linexp(0,1,0.000001.degrad,2pi-(2pi/~silver)).postln;
-~rotation=value;
+value=obj.value.linexp(0,1,0.000001.degrad,2pi-(2pi/~gold)).postln;
+//~rotation=value;
+~rotationz=value;
 });
-~st2=StaticText(~vw,Rect(150,50+sk,sk,sk)).string_("timbre")
-.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',10));
+~st2=StaticText(~vw,Rect(150,50+sk,sk,sk)).string_("rz")
+.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
 );
 (
 ~sl3=Knob.new(~vw, Rect.new(250,50,sk, sk)).background_(Color.black).action_({
@@ -707,7 +723,7 @@ value1=obj.value.linexp(0,1,1,~note).round(1).asInteger.postln;
 ~ssc=value1;
 });
 ~st3=StaticText(~vw,Rect(250,50+sk,sk,sk)).string_("s_range")
-.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',10));
+.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
 );
 (
 ~sl4=Knob.new(~vw, Rect.new(350,50,sk, sk)).background_(Color.black).action_({
@@ -717,7 +733,7 @@ value2=obj.value.linexp(0,1,1,16256/2).round(1).asInteger.postln;
 ~sc=value2;
 });
 ~st4=StaticText(~vw,Rect(350,50+sk,sk,sk)).string_("t_range")
-.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',10));
+.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
 );
 (
 ~sl5=Knob.new(~vw, Rect.new(450,50,sk, sk)).background_(Color.black).action_({
@@ -727,7 +743,7 @@ value2=obj.value.linlin(0,1,1,8).postln;
 ~rect=value2;
 });
 ~st5=StaticText(~vw,Rect(450,50+sk,sk,sk)).string_("overdrive")
-.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',10));
+.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
 );
 (
 ~sl6=Knob.new(~vw, Rect.new(50,50+sk+50+25,sk, sk)).background_(Color.black).action_({
@@ -737,7 +753,7 @@ value1=obj.value.linlin(0,1,(16256*4).neg,(16256)).round(1).asInteger.postln;
 ~drive=value1;
 });
 ~st6=StaticText(~vw,Rect(50,(50+sk+50+25+sk),sk,sk)).string_("drive")
-.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',10));
+.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
 );
 (
 ~sl7=Knob.new(~vw, Rect.new(150,50+sk+50+25,sk, sk)).background_(Color.black).action_({
@@ -749,7 +765,7 @@ value2=obj.value.linexp(0,1,80,10).postln;
 ~lowend=value2;
 });
 ~st7=StaticText(~vw,Rect(150,(50+sk+50+25+sk),sk,sk)).string_("comp")
-.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',10));
+.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
 );
 (
 ~sl8=Knob.new(~vw, Rect.new(250,50+sk+50+25,sk, sk)).background_(Color.black).action_({
@@ -759,37 +775,39 @@ value2=obj.value.linexp(0,1,0.01,1).postln;
 ~attack=value2;
 });
 ~st8=StaticText(~vw,Rect(250,(50+sk+50+25+sk),sk,sk)).string_("attack")
-.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',10));
+.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
 );
 (
 ~sl9=Knob.new(~vw, Rect.new(350,50+sk+50+25,sk, sk)).background_(Color.black).action_({
 arg obj;
 var value1,value2;
-value1=obj.value.linexp(0,1,1,16).postln;
+value1=obj.value.linexp(0,1,1,8).postln;
 ~decay=value1;
 });
 ~st9=StaticText(~vw,Rect(350,(50+sk+50+25+sk),sk,sk)).string_("decay")
-.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',10));
+.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
 );
 (
 ~sl10=Knob.new(~vw, Rect.new(450,50+sk+50+25,sk, sk)).background_(Color.black).action_({
 arg obj;
 var value1,value2;
-value1=obj.value.linlin(0,1,0.degrad,2pi-(2pi/~silver)).round((2pi/992).degrad).postln;
+value1=obj.value.linexp(0,1,0.000001.degrad,2pi-(2pi/~silver)).round((2pi/992).degrad).postln;
 ~incr1=value1;
+~rotationx=value1;
 });
-~st10=StaticText(~vw,Rect(450,(50+sk+50+25+sk),sk,sk)).string_("az")
-.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',10));
+~st10=StaticText(~vw,Rect(450,(50+sk+50+25+sk),sk,sk)).string_("rx")
+.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
 );
 (
 ~sl11=Knob.new(~vw, Rect.new(50,(50+sk+50+sk+25+25+50),sk, sk)).background_(Color.black).action_({
 arg obj;
 var value1,value2;
-value2=obj.value.linlin(0,1,0.degrad,pi-(pi/~gold)).round((pi/992).degrad).postln;
+value2=obj.value.linexp(0,1,0.000001.degrad,pi-(pi/~silver)).round((pi/992).degrad).postln;
 ~incr2=value2;
+~rotationy=value2;
 });
-~st11=StaticText(~vw,Rect(50,(50+sk+50+sk+25+25+sk+50),sk,sk)).string_("el")
-.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',10));
+~st11=StaticText(~vw,Rect(50,(50+sk+50+sk+25+25+sk+50),sk,sk)).string_("ry")
+.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
 );
 (
 ~s12=Knob.new(~vw, Rect.new(150,(50+sk+50+sk+25+25+50), sk)).background_(Color.black).action_({
@@ -799,7 +817,7 @@ value=obj.value.linlin(0,1,0,16256*3).round(1).asInteger.postln;
 ~c=value;
 });
 ~st12=StaticText(~vw,Rect(150,(50+sk+50+sk+25+25+sk+50),sk,sk)).string_("fund")
-.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',10));
+.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
 );
 (
 ~sl13=Knob.new(~vw, Rect.new(250,(50+sk+50+sk+25+25+50),sk, sk)).background_(Color.black).action_({
@@ -809,7 +827,7 @@ value=obj.value.linexp(0,1,0.001,2pi).postln;
 ~gain=value;
 });
 ~st13=StaticText(~vw,Rect(250,(50+sk+50+sk+25+25+sk+50),sk,sk)).string_("gain")
-.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',10));
+.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
 );
 (
 ~sl14=Knob.new(~vw, Rect.new(350,(50+sk+50+sk+25+25+50),sk, sk)).background_(Color.black).action_({
@@ -819,7 +837,7 @@ value=obj.value.linexp(0,1,0.01,1).postln;
 ~room=value;
 });
 ~st14=StaticText(~vw,Rect(350,(50+sk+50+sk+25+25+sk+50),sk,sk)).string_("revroom")
-.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',10));
+.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
 );
 (
 ~sl15=Knob.new(~vw, Rect.new(450,(50+sk+50+sk+25+25+50),sk, sk)).background_(Color.black).action_({
@@ -829,7 +847,7 @@ value=obj.value.linexp(0,1,0.01,1).postln;
 ~mix=value;
 });
 ~st15=StaticText(~vw,Rect(450,(50+sk+50+sk+25+25+sk+50),sk,sk)).string_("revmix")
-.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',10));
+.stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
 );
 }.defer
 );
