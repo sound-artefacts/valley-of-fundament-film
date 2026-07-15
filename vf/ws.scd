@@ -17,7 +17,7 @@ s.makeGui(w);
 ~controlBus_1 = Bus.control(s, 1);
 ~controlBus_2 = Bus.control(s, 1);
 ~controlBus_3 = Bus.control(s, 1);
-~timbr_dur=0.1;
+~timbr_dur=0.03;
 s.waitForBoot{
 Tdef(\drone, {
 //~controlBus = Bus.control(s, 1);
@@ -54,7 +54,7 @@ var silver_r=(1+2.sqrt), g=((1+5.sqrt)/2), azimuth, elevation;
 }.value;
 );
 ~vertices = 32*32;
-~count=[1,1,1,2,1,2];
+~count=[1,1,5,5,5,5];
 ~set=(~count.[0]*~count.[1]*~count.[2]*~count.[3]*~count.[4]*~count.[5]);
 ~fuse1=1;~fuse2=1;~harm=1;~mod=0;~fuse=100;
 ({
@@ -453,7 +453,7 @@ SynthDef.new(\synth,{
 arg gain=1,lowend=20,s_size=1,room=1,drive=0,au=0,sb=0,
 c=0,az=0,el=0,az1=0,el1=0,dicay=2,attack=2,sc=20,ssc=1,mix=0,rect=16,s1,s2,s3,s4,
 busArray = #[0,1,2,3,4,5,6,7,8];
-var fund,fu=16,n=0,mod_x,mod_y,mod_z,phasex,phasey,phasez,low=0,sustain,tremolo=4;
+var fund,fu=32,n=0,mod_x,mod_y,mod_z,phasex,phasey,phasez,low=0,sustain,tremolo=4;
 var freq1,freq2,freq3,amp1,amp2,amp3,sig1,sig2,sig3,heavy,freq11,freq21,freq31,amp11,amp21,amp31;
 var b_x,b_y,b_z,polytope,env,expansion,sph1,sph2,envf;
 var g_ch1,g_ch2,g_ch3,g_ch4,a1,a2,a3,a4,mp,mps,mpf;
@@ -878,9 +878,9 @@ Routine({loop{
 }).play;
 }.defer
 )*/
-~c_az=pi.rand2;
+~c_az=0;
 ~c_el=0.5pi.rand2;
-~c_az1=pi.rand2;
+~c_az1=0.5pi;
 ~c_el1=0.5pi.rand2;
 (
 {
@@ -1231,7 +1231,7 @@ value=obj.value.linexp(0,1,16256,1).postln;
 ~s119=Knob.new(~vw, Rect.new(350,(50+sk+50+sk+25+25+sk+50+sk+50),sk, sk)).background_(Color.black).action_({
 arg obj;
 var value;
-value=obj.value.linlin(0,1,1,4).postln;
+value=obj.value.linlin(0,1,1,4).round(1).postln;
 ~harm=value;
 });
 ~s119=StaticText(~vw,Rect(350,(50+sk+50+sk+25+25+sk+50+sk+50+sk),sk,sk)).string_("harm")
