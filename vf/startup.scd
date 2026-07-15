@@ -781,27 +781,25 @@ dur2=[((dx.[4]*dz.[4])+(dy.[4]*dz.[4]))]++dur1.reverse;
 }.value)*/
 ({
 var m1=1.neg, m2=1.neg;
-var m3=1.neg,n=0,bank=5,rhythm=4,time=32.reciprocal,beat=1;
+var m3=1.neg,n=0,bank=4,rhythm=4,time=32.reciprocal,beat=1;
 var durx=[],dury=[],durz=[],durx1=[],dury1=[],durz1=[];
 var dx=[],dy=[],dz=[],bx,by,bz,durx2,dury2,durz2;
 
 (
-~az=[45.degrad,135.neg.degrad,135.degrad,45.neg.degrad,90.degrad,90.neg.degrad,0.degrad,180.degrad,45.degrad,135.neg.degrad,135.degrad,45.neg.degrad,90.degrad,
-	90.neg.degrad,69.09.degrad,110.91.degrad,110.91.neg.degrad,69.09.neg.degrad,0.degrad,180.degrad];
-
-~el=[35.26.neg.degrad,35.26.neg.degrad,35.26.neg.degrad,35.26.neg.degrad,69.09.neg.degrad,69.09.neg.degrad,20.91.neg.degrad,20.91.neg.degrad,
-	35.26.degrad,35.26.degrad,35.26.degrad,35.26.degrad,69.09.degrad,69.09.degrad,0.degrad,0.degrad,0.degrad,0.degrad,20.91.degrad,20.91.degrad]
+~azrth=[45.degrad,135.neg.degrad,45.neg.degrad,135.degrad];
+~elrth=[35.264390.neg.degrad,35.264390.neg.degrad,35.264390.degrad,35.264390.degrad];
 );
+
 
 ~dur=[];
 
 bank.do{
    // m1=m2=m3=~vertices.rand;
-m1=m2=m3=19.rand;
+m1=m1+1;m2=m2+1;m3=m3+1;
     bx=1.collect{
         var az, el, x, y, z;
-        az = ~az.[m1];
-        el = ~el.[m1];
+        az = ~azrth.[m1];
+        el = ~elrth.[m1];
         x = beat * cos(el) * cos(az);
         y = beat * cos(el) * sin(az);
         z = beat * sin(el);
@@ -809,8 +807,8 @@ m1=m2=m3=19.rand;
 
    by=1.collect{
         var az, el, x, y, z;
-        az = ~az.[m2];
-        el = ~el.[m2];
+        az = ~azrth.[m2];
+        el = ~elrth.[m2];
         x = beat * cos(el) * cos(az);
         y = beat * cos(el) * sin(az);
         z = beat * sin(el);
@@ -818,20 +816,20 @@ m1=m2=m3=19.rand;
 
     bz=1.collect{
         var az, el, x, y, z;
-        az = ~az.[m3];
-        el = ~el.[m3];
+        az = ~azrth.[m3];
+        el = ~elrth.[m3];
         x = beat * cos(el) * cos(az);
         y = beat * cos(el) * sin(az);
         z = beat * sin(el);
         2.pow(z).round(time)};
 
-    m1=1.neg; m2=1.neg; m3=1.neg;
+   // m1=1.neg; m2=1.neg; m3=1.neg;
 
     dx=dx++bx;
     dy=dy++by;
     dz=dz++bz;
 
-    bx=[]; by=[]; bz=[];
+   // bx=[]; by=[]; bz=[];
 };
 
 n=0;
@@ -1089,7 +1087,7 @@ value1=obj.value.linexp(0,1,1,~note).round(1).asInteger.postln;
 ~sl4=Knob.new(~vw, Rect.new(350,50,sk, sk)).background_(Color.black).action_({
 arg obj;
 var value1,value2;
-value2=obj.value.linexp(0,1,1,16256/2).round(1).asInteger.postln;
+value2=obj.value.linexp(0,1,1,16256).round(1).asInteger.postln;
 ~sc=value2;
 });
 ~st4=StaticText(~vw,Rect(350,50+sk,sk,sk)).string_("t_range")
