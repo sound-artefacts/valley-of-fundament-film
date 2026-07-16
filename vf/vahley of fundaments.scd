@@ -567,6 +567,17 @@ mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt));
 protaz=(az + r_az).wrap(pi.neg,pi);
 protel=(el + r_el).wrap(0.5pi.neg,0.5pi);
 point = Spherical(diameter*mag,protaz,protel).asCartesian;
+/*(
+point.x = point.x.wrap2(300);
+point.y = point.y.wrap2(300);
+point.z = point.z.wrap2(300);
+		)*/
+		(
+point.x = point.x.clip2(300);
+point.y = point.y.clip2(300);
+point.z = point.z.clip2(300);
+		);
+
 ///rotations
 point=point.rotateYZ(rx).rotateXZ(ry).rotateXY(rz);
 //point=point.rotateYZ(tilt);
