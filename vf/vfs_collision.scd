@@ -570,9 +570,9 @@ sig3=(sig3*mix.linlin(0,1,0.1,2)).softclip;
 
 
 //////propagation
-//sig1=sig1*mp_x.sign;
-//sig2=sig2*mp_y.sign;
-//sig3=sig3*mp_z.sign;
+sig1=sig1*mp_x.sign;
+sig2=sig2*mp_y.sign;
+sig3=sig3*mp_z.sign;
 
 ///spectral compensation
 //sig1=BRF.ar(c1,freq1/2,heavy);
@@ -783,9 +783,9 @@ sig3=(sig3*mix.linlin(0,1,0.1,2)).softclip;
 
 
 //////propagation
-//sig1=sig1*mp_x.sign;
-//sig2=sig2*mp_y.sign;
-//sig3=sig3*mp_z.sign;
+sig1=sig1*mp_x.sign;
+sig2=sig2*mp_y.sign;
+sig3=sig3*mp_z.sign;
 
 ///spectral compensation
 //sig1=BRF.ar(c1,freq1/2,heavy);
@@ -1425,8 +1425,8 @@ arg obj;
 var value,v;
 value=obj.value.linlin(0,1,0,pi).postln;
 v=obj.value.linlin(0,1,0,624).round(1).asInteger.postln;
-~nn1=v;
-~nn2=~nn1.rand;
+~nn1=v.rand;
+~nn2=v.rand;
 ~mod=value;
 });
 ~sl20=StaticText(~vw1,Rect(450,(50+sk+50+sk+25+25+sk+50+sk+50+sk),sk,sk)).string_("~mod")
@@ -1752,8 +1752,8 @@ arg obj;
 var value,v;
 value=obj.value.linlin(0,1,0,pi).postln;
 v=obj.value.linlin(0,1,0,624).round(1).asInteger.postln;
-~nn1=v;
-~nn2=~nn1.rand;
+~nn1=v.rand;
+~nn2=v.rand;
 ~mod=value;
 });
 ~sl20b=StaticText(~vw,Rect(450,(50+sk+50+sk+25+25+sk+50+sk+50+sk),sk,sk)).string_("~mod")
