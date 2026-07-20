@@ -20,7 +20,7 @@ s.makeGui(w);
 ~controlBus_4 = Bus.control(s, 1);
 ~controlBus_5 = Bus.control(s, 1);
 ~controlBus_6 = Bus.control(s, 1);
-~timbr_dur=0.03;
+~timbr_dur=(1/16);
 s.waitForBoot{
 Tdef(\drone, {
 //~controlBus = Bus.control(s, 1);
@@ -631,10 +631,10 @@ g_ch4=
 );
 
 (
-Out.ar(busArray.[0],LeakDC.ar(sig1*env*(g_ch1)));
-Out.ar(busArray.[1],LeakDC.ar(sig2*env*(g_ch2)));
-Out.ar(busArray.[2],LeakDC.ar(sig1*env*(g_ch3)));
-Out.ar(busArray.[3],LeakDC.ar(sig2*env*(g_ch4)));
+Out.ar(busArray.[0],LeakDC.ar(sig1*env*(g_ch1+g_ch2)));
+Out.ar(busArray.[1],LeakDC.ar(sig2*env*(g_ch2+g_ch3)));
+//Out.ar(busArray.[2],LeakDC.ar(sig1*env*(g_ch3)));
+//Out.ar(busArray.[3],LeakDC.ar(sig2*env*(g_ch4)));
 //Out.ar(busArray.[2],LeakDC.ar(sig3*env));
 );
 
@@ -839,10 +839,10 @@ g_ch4=
 );
 
 (
-Out.ar(busArray.[0],LeakDC.ar(sig1*env*(g_ch1)));
-Out.ar(busArray.[1],LeakDC.ar(sig2*env*(g_ch2)));
-Out.ar(busArray.[2],LeakDC.ar(sig1*env*(g_ch3)));
-Out.ar(busArray.[3],LeakDC.ar(sig2*env*(g_ch4)));
+Out.ar(busArray.[0],LeakDC.ar(sig1*env*(g_ch1+g_ch2)));
+Out.ar(busArray.[1],LeakDC.ar(sig2*env*(g_ch2+g_ch3)));
+//Out.ar(busArray.[2],LeakDC.ar(sig1*env*(g_ch3)));
+//Out.ar(busArray.[3],LeakDC.ar(sig2*env*(g_ch4)));
 //Out.ar(busArray.[2],LeakDC.ar(sig3*env));
 );
 
@@ -1101,7 +1101,7 @@ Pbind(\instrument, \synth,
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////gui
 (
 {
-var size=550,sk=(size/15),w,rol=0,sz=0.5,wd=20,shift=1;
+var size=550,sk=(size/15),w,rol=0,sz=0.5,wd=10,shift=1;
 var v1,v2,v3,p1,p2,p3,tx1=2,tx2=2,tx3=2;
 var lined=40,run=true,g=((1+5.sqrt)/2);
 
@@ -1429,7 +1429,7 @@ v=obj.value.linlin(0,1,0,624).round(1).asInteger.postln;
 );
 (
 {
-var size=550,sk=(size/15),w,rol=0,sz=0.5,wd=20,shift=1;
+var size=550,sk=(size/15),w,rol=0,sz=0.5,wd=10,shift=1;
 var v1,v2,v3,p1,p2,p3,tx1=2,tx2=2,tx3=2;
 var lined=40,run=true,g=((1+5.sqrt)/2);
 
