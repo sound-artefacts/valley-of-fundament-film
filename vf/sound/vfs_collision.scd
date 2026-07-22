@@ -458,7 +458,7 @@ SynthDef.new(\synth,{
 arg gain=1,lowend=20,s_size=1,room=1,drive=0,au=0,sb=0,mag1=1,elosc=1,
 c=0,az=0,el=0,dicay=2,attack=2,sc=20,ssc=1,mix=0,rect=16,s1,s2,s3,s4,
 busArray = #[0,1,2,3];
-var fund,fu=32,n=0,mod_x,mod_y,mod_z,phasex,phasey,phasez,low=0,tremolo=2;
+var fund,fu=32,n=0,mod_x,mod_y,mod_z,phasex,phasey,phasez,low=0,tremolo=16;
 var freq1,freq2,freq3,amp1,amp2,amp3,sig1,sig2,sig3,heavy;
 var b_x,b_y,b_z,polytope,env,expansion,sph1,sph2,envf,pan;
 var g_ch1,g_ch2,g_ch3,g_ch4,mp,mps,mpf;
@@ -477,7 +477,7 @@ rip = rip.normalize;
 peak = peak.min(signal.size - 2).max(1);
 times =Array.fill(peak, attack / peak) ++ Array.fill(signal.size - peak - 1, dicay / (signal.size - peak - 1));
 enva = Env(rip.asArray, times);
-env = EnvGen.ar(enva,doneAction:2)*gain;
+env = EnvGen.ar(enva,doneAction:2)*gain*2;
 
 pan=SinOsc.ar(elosc,0,pi);
 
@@ -504,7 +504,8 @@ mpf_z =pi* sin(el);
 //mp_y=mp_y*((sc*dist)/((sc*dist)+mp_z+((sc*dist)/vanish)));
 //mps_x=mps_x*((ssc*dist)/((ssc*dist)+mps_z+((ssc*dist)/vanish)));
 //mps_y=mps_y*((ssc*dist)/((ssc*dist)+mps_z+((ssc*dist)/vanish)));
-key=Select.kr(sb,~scale10);
+//key=Select.kr(sb,~scale10);
+key=~scale;
 
 b_x=2.pow(mp_x.round(1)/16256);
 b_y=2.pow(mp_y.round(1)/16256);
@@ -666,7 +667,7 @@ SynthDef.new(\synthb,{
 arg gain=1,lowend=20,s_size=1,room=1,drive=0,au=0,sb=0,mag1=1,elosc=1,
 c=0,az=0,el=0,dicay=2,attack=2,sc=20,ssc=1,mix=0,rect=16,s1,s2,s3,s4,
 busArray = #[0,1,2,3];
-var fund,fu=32,n=0,mod_x,mod_y,mod_z,phasex,phasey,phasez,low=0,tremolo=8;
+var fund,fu=32,n=0,mod_x,mod_y,mod_z,phasex,phasey,phasez,low=0,tremolo=16;
 var freq1,freq2,freq3,amp1,amp2,amp3,sig1,sig2,sig3,heavy;
 var b_x,b_y,b_z,polytope,env,expansion,sph1,sph2,envf;
 var g_ch1,g_ch2,g_ch3,g_ch4,a1,a2,a3,a4,mp,mps,mpf,pan;
@@ -685,7 +686,7 @@ rip = rip.normalize;
 peak = peak.min(signal.size - 2).max(1);
 times =Array.fill(peak, attack / peak) ++ Array.fill(signal.size - peak - 1, dicay / (signal.size - peak - 1));
 enva = Env(rip.asArray, times);
-env = EnvGen.ar(enva,doneAction:2)*gain;
+env = EnvGen.ar(enva,doneAction:2)*gain*2;
 
 pan=SinOsc.ar(elosc,0.5pi,5pi);
 
@@ -712,7 +713,8 @@ mpf_z =pi* sin(el);
 //mp_y=mp_y*((sc*dist)/((sc*dist)+mp_z+((sc*dist)/vanish)));
 //mps_x=mps_x*((ssc*dist)/((ssc*dist)+mps_z+((ssc*dist)/vanish)));
 //mps_y=mps_y*((ssc*dist)/((ssc*dist)+mps_z+((ssc*dist)/vanish)));
-key=Select.kr(sb,~scale10);
+//key=Select.kr(sb,~scale10);
+key=~scale;
 
 b_x=2.pow(mp_x.round(1)/16256);
 b_y=2.pow(mp_y.round(1)/16256);
@@ -1059,10 +1061,10 @@ pz=~cz.[z];
 px1=~cx.[x1];
 py1=~cy.[y1];
 pz1=~cz.[z1];
-~shape1=1;
-~shape2=1;
-//~shape1=(Cartesian(~magx.[x],~magy.[x],~magz.[x]).rho/(2.sqrt));
-//~shape2=(Cartesian(~magx.[x1],~magy.[x1],~magz.[x1]).rho/(2.sqrt));
+//~shape1=1;
+//~shape2=1;
+~shape1=(Cartesian(~magx.[x],~magy.[x],~magz.[x]).rho/(2.sqrt));
+~shape2=(Cartesian(~magx.[x1],~magy.[x1],~magz.[x1]).rho/(2.sqrt));
 ~azimuth=Cartesian(px,py,pz).theta;
 ~elevation=Cartesian(px,py,pz).phi;
 ~azimuth1=Cartesian(px1,py1,pz1).theta;
@@ -1096,12 +1098,12 @@ Pbind(\instrument, \synth,
 ,\s3,Pfunc{(~vertices-1).rand.round(1).asInteger},\s4,Pfunc{(~vertices-1).rand.round(1).asInteger},
 \attack,  Pfunc { ~attackb }, \dicay, Pfunc { ~decayb }, \ssc, Pfunc{~sscb};
 ));
-~patternb.play(~clockb);
+//~patternb.play(~clockb);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////gui
 (
 {
-var size=550,sk=(size/15),w,rol=0,sz=0.5,wd=10,shift=1;
+var size=550,sk=(size/15),w,rol=0,sz=0.5,wd=2,shift=1;
 var v1,v2,v3,p1,p2,p3,tx1=2,tx2=2,tx3=2;
 var lined=40,run=true,g=((1+5.sqrt)/2);
 
@@ -1230,7 +1232,7 @@ value=obj.value.linexp(0,1,1/32,16).round(1/8).postln;
 ~sl2=Knob.new(~vw1, Rect.new(150,50,sk, sk)).background_(Color.black).action_({
 arg obj;
 var value;
-value=obj.value.linlin(0,1,0,2pi-(2pi/~gold)).round(pi/256).postln;
+value=obj.value.linexp(0,1,0.00000001,2pi-(2pi/~gold)).postln;
 //~rotation=value;
 ~rotationz=value;
 });
@@ -1303,7 +1305,7 @@ value2=obj.value.linexp(0,1,0.01,8).postln;
 ~sl9=Knob.new(~vw1, Rect.new(350,50+sk+50+25,sk, sk)).background_(Color.black).action_({
 arg obj;
 var value1,value2;
-value1=obj.value.linexp(0,1,0.01,8).postln;
+value1=obj.value.linexp(0,1,0.01,16).postln;
 ~decay=value1;
 });
 ~st9=StaticText(~vw1,Rect(350,(50+sk+50+25+sk),sk,sk)).string_("decay")
@@ -1313,7 +1315,7 @@ value1=obj.value.linexp(0,1,0.01,8).postln;
 ~sl10=Knob.new(~vw1, Rect.new(450,50+sk+50+25,sk, sk)).background_(Color.black).action_({
 arg obj;
 var value1,value2;
-value1=obj.value.linlin(0,1,0,2pi-(2pi/~silver)).round(pi/256).postln;
+value1=obj.value.linexp(0,1,0.00000001,2pi-(2pi/~silver)).postln;
 ~incr1=value1;
 ~rotationx=value1;
 });
@@ -1324,7 +1326,7 @@ value1=obj.value.linlin(0,1,0,2pi-(2pi/~silver)).round(pi/256).postln;
 ~sl11=Knob.new(~vw1, Rect.new(50,(50+sk+50+sk+25+25+50),sk, sk)).background_(Color.black).action_({
 arg obj;
 var value1,value2;
-value2=obj.value.linlin(0,1,0,pi-(pi/~silver)).round(pi/256).postln;
+value2=obj.value.linexp(0,1,0.00000001,pi-(pi/~silver)).postln;
 ~incr2=value2;
 ~rotationy=value2;
 });
@@ -1397,7 +1399,7 @@ arg obj;
 var value;
 value=obj.value.linexp(0,1,16256,1);
 ~fuse=value;
-~pan1=obj.value.linexp(0,1,0.0001,20).postln;
+~pan1=obj.value.linexp(0,1,0.00000001,20).postln;
 });
 ~s118=StaticText(~vw1,Rect(250,(50+sk+50+sk+25+25+sk+50+sk+50+sk),sk,sk)).string_("fuse")
 .stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
@@ -1429,7 +1431,7 @@ v=obj.value.linlin(0,1,0,624).round(1).asInteger.postln;
 );
 (
 {
-var size=550,sk=(size/15),w,rol=0,sz=0.5,wd=10,shift=1;
+var size=550,sk=(size/15),w,rol=0,sz=0.5,wd=2,shift=1;
 var v1,v2,v3,p1,p2,p3,tx1=2,tx2=2,tx3=2;
 var lined=40,run=true,g=((1+5.sqrt)/2);
 
@@ -1558,7 +1560,7 @@ value=obj.value.linexp(0,1,1/32,16).round(1/8).postln;
 ~sl2b=Knob.new(~vw, Rect.new(150,50,sk, sk)).background_(Color.black).action_({
 arg obj;
 var value;
-value=obj.value.linlin(0,1,0,2pi-(2pi/~gold)).round(pi/256).postln;
+value=obj.value.linexp(0,1,0.00000001,2pi-(2pi/~gold)).postln;
 //~rotation=value;
 ~rotationz=value;
 });
@@ -1631,7 +1633,7 @@ value2=obj.value.linexp(0,1,0.01,8).postln;
 ~sl9b=Knob.new(~vw, Rect.new(350,50+sk+50+25,sk, sk)).background_(Color.black).action_({
 arg obj;
 var value1,value2;
-value1=obj.value.linexp(0,1,0.01,8).postln;
+value1=obj.value.linexp(0,1,0.01,16).postln;
 ~decayb=value1;
 });
 ~st9b=StaticText(~vw,Rect(350,(50+sk+50+25+sk),sk,sk)).string_("decay")
@@ -1641,7 +1643,7 @@ value1=obj.value.linexp(0,1,0.01,8).postln;
 ~sl10b=Knob.new(~vw, Rect.new(450,50+sk+50+25,sk, sk)).background_(Color.black).action_({
 arg obj;
 var value1,value2;
-value1=obj.value.linlin(0,1,0,2pi-(2pi/~silver)).round(pi/256).postln;
+value1=obj.value.linexp(0,1,0.00000001,2pi-(2pi/~silver)).postln;
 ~incr1=value1;
 ~rotationx=value1;
 });
@@ -1652,7 +1654,7 @@ value1=obj.value.linlin(0,1,0,2pi-(2pi/~silver)).round(pi/256).postln;
 ~sl11b=Knob.new(~vw, Rect.new(50,(50+sk+50+sk+25+25+50),sk, sk)).background_(Color.black).action_({
 arg obj;
 var value1,value2;
-value2=obj.value.linlin(0,1,0,pi-(pi/~silver)).round(pi/256).postln;
+value2=obj.value.linexp(0,1,0.00000001,pi-(pi/~silver)).postln;
 ~incr2=value2;
 ~rotationy=value2;
 });
@@ -1725,7 +1727,7 @@ arg obj;
 var value;
 value=obj.value.linexp(0,1,16256,1);
 ~fuse=value;
-~pan2=obj.value.linexp(0,1,0.0001,20).postln;
+~pan2=obj.value.linexp(0,1,0.00000001,20).postln;
 });
 ~s118b=StaticText(~vw,Rect(250,(50+sk+50+sk+25+25+sk+50+sk+50+sk),sk,sk)).string_("fuse")
 .stringColor_(Color.white).background_(Color.black).font_(Font('Arial',11));
