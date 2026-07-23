@@ -15,12 +15,12 @@ s.makeGui(w);
 //s.freqscope;
 //s.scope;
 );
-~controlBus_1 = Bus.control(s, 1);
+/*~controlBus_1 = Bus.control(s, 1);
 ~controlBus_2 = Bus.control(s, 1);
 ~controlBus_3 = Bus.control(s, 1);
 ~controlBus_4 = Bus.control(s, 1);
 ~controlBus_5 = Bus.control(s, 1);
-~controlBus_6 = Bus.control(s, 1);
+~controlBus_6 = Bus.control(s, 1);*/
 ~timbr_dur=(1/16);
 s.waitForBoot{
 Tdef(\drone, {
@@ -433,8 +433,8 @@ wt = signal.asWavetable;
 (
 ~note=(5*7);
 ~note10=(5*7);
-~num=[0,0,5,7,12,10,15,24,20,30,48];
-~note=11;
+~num=[0,0,5,7,12,17,19,24,29,31,48,53,55,96];
+~note=13;
 (
 {
 var nn=1.neg;
@@ -484,20 +484,21 @@ times =Array.fill(peak, attack / peak) ++ Array.fill(signal.size - peak - 1, dic
 enva = Env(rip.asArray, times);
 env = EnvGen.ar(enva,doneAction:2)*gain;
 //env = EnvGen.ar(Env.perc(attack,dicay,gain),doneAction:2);
-pan=SinOsc.ar(elosc,0,pi);
+
+pan=LFNoise0.ar(elosc,pi);
 
 expansion=2.pow(c.lag(0.01)/16256);
 fund=(fu*(9/8))*expansion;
 heavy=2.pow(drive.lag(0.01)/16256);
 
 ///osc
-mp_x = (sc*mag1)  * cos(el) * cos(az);
-mp_y = (sc*mag1)  * cos(el) * sin(az);
-mp_z = (sc*mag1)  * sin(el);
+mp_x = (sc)  * cos(el) * cos(az);
+mp_y = (sc)  * cos(el) * sin(az);
+mp_z = (sc)  * sin(el);
 
-mps_x = (ssc*mag1) * cos(el) * cos(az);
-mps_y = (ssc*mag1) * cos(el) * sin(az);
-mps_z = (ssc*mag1) * sin(el);
+mps_x = (ssc) * cos(el) * cos(az);
+mps_y = (ssc) * cos(el) * sin(az);
+mps_z = (ssc) * sin(el);
 
 
 mpf_x =pi* cos(el) * cos(az);
@@ -597,43 +598,43 @@ sig3=Compander.ar(sig3,c3,threshold,1.2,1/3,0.03,0.15)+BrownNoise.ar(0.000001);
 /////spat
 (
 g_ch1=
-(sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
+(mag1*sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
 sig1.range(0.001,1)*cos(~el.[0])*cos(~az.[0]))
 +
-(sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
+(mag1*sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
  sig2.range(0.001,1)*cos(~el.[0])*sin(~az.[0]))
 +
-(sig3.abs.range(0.001,1)*sin(el)*
+(mag1*sig3.abs.range(0.001,1)*sin(el)*
  sig3.range(0.001,1)*sin(~el.[0]));
 
 g_ch2=
-(sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
+(mag1*sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
  sig1.range(0.001,1)*cos(~el.[1])*cos(~az.[1]))
 +
-(sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
+(mag1*sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
  sig2.range(0.001,1)*cos(~el.[1])*sin(~az.[1]))
 +
-(sig3.abs.range(0.001,1)*sin(el)*
+(mag1*sig3.abs.range(0.001,1)*sin(el)*
  sig3.range(0.001,1)*sin(~el.[1]));
 
 g_ch3=
-(sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
+(mag1*sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
  sig1.range(0.001,1)*cos(~el.[2])*cos(~az.[2]))
 +
-(sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
+(mag1*sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
  sig2.range(0.001,1)*cos(~el.[2])*sin(~az.[2]))
 +
-(sig3.abs.range(0.001,1)*sin(el)*
+(mag1*sig3.abs.range(0.001,1)*sin(el)*
  sig3.range(0.001,1)*sin(~el.[2]));
 
 g_ch4=
-(sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
+(mag1*sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
  sig1.range(0.001,1)*cos(~el.[3])*cos(~az.[3]))
 +
-(sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
+(mag1*sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
  sig2.range(0.001,1)*cos(~el.[3])*sin(~az.[3]))
 +
-(sig3.abs.range(0.001,1)*sin(el)*
+(mag1*sig3.abs.range(0.001,1)*sin(el)*
  sig3.range(0.001,1)*sin(~el.[3]));
 );
 
@@ -643,9 +644,9 @@ Out.ar(busArray.[1],LeakDC.ar(sig2*env*(g_ch2)));
 //Out.ar(busArray.[3],LeakDC.ar(sig2*env*(g_ch4)));
 //Out.ar(busArray.[2],LeakDC.ar(sig3*env));
 
-Out.kr(~controlBus_1.index,(sig1*env));
-Out.kr(~controlBus_2.index,(sig2*env));
-Out.kr(~controlBus_3.index,(sig3*env));
+//Out.kr(~controlBus_1.index,(sig1*env));
+//Out.kr(~controlBus_2.index,(sig2*env));
+//Out.kr(~controlBus_3.index,(sig3*env));
 
 ///comment out the above parentheses and uncomment the below to use the synth on
 ///threefold speaker wavefield quad spat (12ch)/// to puput stereo sets (x,y) not use z channel as ouput (2,5,etc), sig3.
@@ -693,20 +694,20 @@ times =Array.fill(peak, attack / peak) ++ Array.fill(signal.size - peak - 1, dic
 enva = Env(rip.asArray, times);
 env = EnvGen.ar(enva,doneAction:2)*gain*2;
 
-pan=SinOsc.ar(elosc,0,pi);
+pan=LFNoise0.ar(elosc,pi);
 
 expansion=2.pow(c.lag(0.01)/16256);
 fund=(fu*(9/8))*expansion;
 heavy=2.pow(drive.lag(0.01)/16256);
 
 ///osc
-mp_x = (sc*mag1)  * cos(el) * cos(az);
-mp_y = (sc*mag1)  * cos(el) * sin(az);
-mp_z = (sc*mag1)  * sin(el);
+mp_x = (sc)  * cos(el) * cos(az);
+mp_y = (sc)  * cos(el) * sin(az);
+mp_z = (sc)  * sin(el);
 
-mps_x = (ssc*mag1) * cos(el) * cos(az);
-mps_y = (ssc*mag1) * cos(el) * sin(az);
-mps_z = (ssc*mag1) * sin(el);
+mps_x = (ssc) * cos(el) * cos(az);
+mps_y = (ssc) * cos(el) * sin(az);
+mps_z = (ssc) * sin(el);
 
 
 mpf_x =pi* cos(el) * cos(az);
@@ -805,43 +806,43 @@ sig3=Compander.ar(sig3,c3,threshold,1.2,1/3,0.03,0.15)+BrownNoise.ar(0.000001);
 /////spat
 (
 g_ch1=
-(sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
+(mag1*sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
 sig1.range(0.001,1)*cos(~el.[0])*cos(~az.[0]))
 +
-(sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
+(mag1*sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
  sig2.range(0.001,1)*cos(~el.[0])*sin(~az.[0]))
 +
-(sig3.abs.range(0.001,1)*sin(el)*
+(mag1*sig3.abs.range(0.001,1)*sin(el)*
  sig3.range(0.001,1)*sin(~el.[0]));
 
 g_ch2=
-(sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
+(mag1*sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
  sig1.range(0.001,1)*cos(~el.[1])*cos(~az.[1]))
 +
-(sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
+(mag1*sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
  sig2.range(0.001,1)*cos(~el.[1])*sin(~az.[1]))
 +
-(sig3.abs.range(0.001,1)*sin(el)*
+(mag1*sig3.abs.range(0.001,1)*sin(el)*
  sig3.range(0.001,1)*sin(~el.[1]));
 
 g_ch3=
-(sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
+(mag1*sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
  sig1.range(0.001,1)*cos(~el.[2])*cos(~az.[2]))
 +
-(sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
+(mag1*sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
  sig2.range(0.001,1)*cos(~el.[2])*sin(~az.[2]))
 +
-(sig3.abs.range(0.001,1)*sin(el)*
+(mag1*sig3.abs.range(0.001,1)*sin(el)*
  sig3.range(0.001,1)*sin(~el.[2]));
 
 g_ch4=
-(sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
+(mag1*sig1.abs.range(0.001,1)*cos(el)*cos((az+pan).wrap(pi.neg,pi))*
  sig1.range(0.001,1)*cos(~el.[3])*cos(~az.[3]))
 +
-(sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
+(mag1*sig2.abs.range(0.001,1)*cos(el)*sin((az+pan).wrap(pi.neg,pi))*
  sig2.range(0.001,1)*cos(~el.[3])*sin(~az.[3]))
 +
-(sig3.abs.range(0.001,1)*sin(el)*
+(mag1*sig3.abs.range(0.001,1)*sin(el)*
  sig3.range(0.001,1)*sin(~el.[3]));
 );
 
@@ -851,9 +852,9 @@ Out.ar(busArray.[1],LeakDC.ar(sig2*env*(g_ch4)));
 //Out.ar(busArray.[2],LeakDC.ar(sig3*env));
 );
 
-Out.kr(~controlBus_4.index,(sig1*env));
-Out.kr(~controlBus_5.index,(sig2*env));
-Out.kr(~controlBus_6.index,(sig3*env));
+//Out.kr(~controlBus_4.index,(sig1*env));
+//Out.kr(~controlBus_5.index,(sig2*env));
+//Out.kr(~controlBus_6.index,(sig3*env));
 
 ///comment out the above parentheses and uncomment the below to use the synth on
 ///threefold speaker wavefield quad spat (12ch)/// to puput stereo sets (x,y) not use z channel as ouput (2,5,etc), sig3.
