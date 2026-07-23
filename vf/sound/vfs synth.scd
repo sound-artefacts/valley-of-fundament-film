@@ -1,4 +1,5 @@
 ///Quarks.install("MathLib");
+
 (
 (
 s.options.numWireBufs = 1024*16;
@@ -56,8 +57,9 @@ var silver_r=(1+2.sqrt), g=((1+5.sqrt)/2), azimuth, elevation;
 };
 }.value;
 );
+
 ~vertices = 32*32;
-~count=[1,1,3,4,4,4];
+~count=[1,1,2,2,16,16];
 ~set=(~count.[0]*~count.[1]*~count.[2]*~count.[3]*~count.[4]*~count.[5]);
 ~fuse1=1;~fuse2=1;~harm=1;~mod=0;~fuse=1000;
 ({
@@ -387,7 +389,7 @@ x=rot.x; y=rot.y; z=rot.z;
 ~cx = ~cx ++ x; ~cy = ~cy ++ y; ~cz = ~cz ++ z;
 n = n + 1;
 };
-(~timbr_dur).wait;
+(0.05).wait;
 };});
 ~tree.play
 }.defer;
@@ -430,7 +432,9 @@ wt = signal.asWavetable;
 );
 (
 ~note=(5*7);
-~note10=26;
+~note10=(5*7);
+~num=[0,0,5,7,12,10,15,24,20,30,48];
+~note=11;
 (
 {
 var nn=1.neg;
@@ -441,14 +445,15 @@ var nn=1.neg;
 (
 {
 var nn=1.neg,scale1,scale2;
-scale1=~note10.collect{nn=nn+1;Scale.minorPentatonic.performDegreeToKey(nn,12)};
+~scale1=~note10.collect{nn=nn+1;Scale.minorPentatonic.performDegreeToKey(nn,12)};
 nn=1.neg;
-scale2=~note10.collect{nn=nn+1;Scale.majorPentatonic.performDegreeToKey(nn,12)};
+~scale2=~note10.collect{nn=nn+1;Scale.majorPentatonic.performDegreeToKey(nn,12)};
 //~scale10=[scale1,scale2];
-~scale10=[scale1,scale2];
+~scale10=[~scale1,~scale2];
 }.value;
 );
 );
+
 ////spat
 ~az=[0,0.25pi,0.75pi,pi];
 ~el=[0.125pi,0.125pi,0.125pi,0.125pi];
@@ -458,7 +463,7 @@ SynthDef.new(\synth,{
 arg gain=1,lowend=20,s_size=1,room=1,drive=0,au=0,sb=0,mag1=1,elosc=1,
 c=0,timbr=1,az=0,el=0,dicay=2,attack=2,sc=20,ssc=1,mix=0,rect=16,s1,s2,s3,s4,
 busArray = #[0,1,2,3];
-var fund,fu=32,n=0,mod_x,mod_y,mod_z,phasex,phasey,phasez,low=0,tremolo=12;
+var fund,fu=32,n=0,mod_x,mod_y,mod_z,phasex,phasey,phasez,low=0,tremolo=64;
 var freq1,freq2,freq3,amp1,amp2,amp3,sig1,sig2,sig3,heavy;
 var b_x,b_y,b_z,polytope,env,expansion,sph1,sph2,envf,pan;
 var g_ch1,g_ch2,g_ch3,g_ch4,mp,mps,mpf;
@@ -505,7 +510,8 @@ mpf_z =pi* sin(el);
 //mps_x=mps_x*((ssc*dist)/((ssc*dist)+mps_z+((ssc*dist)/vanish)));
 //mps_y=mps_y*((ssc*dist)/((ssc*dist)+mps_z+((ssc*dist)/vanish)));
 //key=Select.kr(sb,~scale10);
-key=~scale;
+//key=~scale1;
+key=~num;
 
 b_x=2.pow(mp_x.round(1)/16256);
 b_y=2.pow(mp_y.round(1)/16256);
@@ -666,7 +672,7 @@ SynthDef.new(\synthb,{
 arg gain=1,lowend=20,s_size=1,room=1,drive=0,au=0,sb=0,mag1=1,elosc=1,
 c=0,timbr=1,az=0,el=0,dicay=2,attack=2,sc=20,ssc=1,mix=0,rect=16,s1,s2,s3,s4,
 busArray = #[0,1,2,3];
-var fund,fu=32,n=0,mod_x,mod_y,mod_z,phasex,phasey,phasez,low=0,tremolo=16;
+var fund,fu=32,n=0,mod_x,mod_y,mod_z,phasex,phasey,phasez,low=0,tremolo=64;
 var freq1,freq2,freq3,amp1,amp2,amp3,sig1,sig2,sig3,heavy;
 var b_x,b_y,b_z,polytope,env,expansion,sph1,sph2,envf,pan;
 var g_ch1,g_ch2,g_ch3,g_ch4,mp,mps,mpf;
@@ -713,7 +719,8 @@ mpf_z =pi* sin(el);
 //mps_x=mps_x*((ssc*dist)/((ssc*dist)+mps_z+((ssc*dist)/vanish)));
 //mps_y=mps_y*((ssc*dist)/((ssc*dist)+mps_z+((ssc*dist)/vanish)));
 //key=Select.kr(sb,~scale10);
-key=~scale;
+//key=~scale2;
+key=~num;
 
 b_x=2.pow(mp_x.round(1)/16256);
 b_y=2.pow(mp_y.round(1)/16256);
@@ -1064,12 +1071,12 @@ Routine({loop{
 //x1 = Spherical(~set-1,~c_az1,~c_el1).x.round(1).asInteger.abs;
 //y1 = Spherical(~set-1,~c_az1,~c_el1).y.round(1).asInteger.abs;
 //z1 = Spherical(~set-1,~c_az1,~c_el1).z.round(1).asInteger.abs;
-~azar=[];~azar1=[];~elar=[];~elar1=[];~magar1=[];~magar2=[];
+//~azar=[];~azar1=[];~elar=[];~elar1=[];~magar1=[];~magar2=[];
 x=~nn;
 x1=~nn;
-12.do{
-x=~nn.rand;
-x1=x;
+//12.do{
+//x=~nn.rand;
+//x1=x;
 px=~cx.[x];
 py=~cy.[x];
 pz=~cz.[x];
@@ -1078,25 +1085,46 @@ py1=~cy.[x1];
 pz1=~cz.[x1];
 //~shape1=1;
 //~shape2=1;
-~magar1=~magar1++(Cartesian(~magx.[x],~magy.[x],~magz.[x]).rho/(2.sqrt));
+/*~magar1=~magar1++(Cartesian(~magx.[x],~magy.[x],~magz.[x]).rho/(2.sqrt));
 ~magar2=~magar2++(Cartesian(~magx.[x1],~magy.[x1],~magz.[x1]).rho/(2.sqrt));
 ~azar=~azar++Cartesian(px,py,pz).theta;
 ~elar=~elar++Cartesian(px,py,pz).phi;
 ~azar1=~azar1++Cartesian(px1,py1,pz1).theta;
-~elar1=~elar1++Cartesian(px1,py1,pz1).phi;
-};
-(~dursum).wait; // frame duration
+~elar1=~elar1++Cartesian(px1,py1,pz1).phi;*/
+~shape1=(Cartesian(~magx.[x],~magy.[x],~magz.[x]).rho/(2.sqrt));
+~shape2=(Cartesian(~magx.[x1],~magy.[x1],~magz.[x1]).rho/(2.sqrt));
+~azimuth=Cartesian(px,py,pz).theta;
+~elevation=Cartesian(px,py,pz).phi;
+~azimuth1=Cartesian(px1,py1,pz1).theta;
+~elevation1=Cartesian(px1,py1,pz1).phi;
+//};
+(0.01).wait; // frame duration
 };
 }).play(~clock);
 }.defer
 );
+/*(
+{
+var n1=1.neg,timbr;
+Routine({loop{
+~timbrsm=~magar1;
+~timbrsm1=~magar2;
+~timbrsa=~azar1;
+~timbrsa1=~azar1;
+~timbrse=~elar;
+~timbrse1=~elar1;
+(~dursum).wait; // frame duration
+};
+}).play(~clock);
+}.defer
+)*/
 
-(
+/*(
 {
 var n1=1.neg,timbr;
 Routine({loop{
 n1=(n1+1).wrap(0,11);
-timbr=Spherical(~magar1.[n1],~azar.[n1],~elar.[n1]);
+timbr=Spherical(~timbrsm.[n1],~timbrsa.[n1],~timbrse.[n1]);
 ~azimuth=timbr.theta;
 ~elevation=timbr.phi;
 ~shape1=timbr.rho;
@@ -1104,13 +1132,13 @@ timbr=Spherical(~magar1.[n1],~azar.[n1],~elar.[n1]);
 };
 }).play(~clock);
 }.defer
-);
-(
+)*/
+/*(
 {
 var n1=1.neg,timbr;
 Routine({loop{
 n1=(n1+1).wrap(0,11);
-timbr=Spherical(~magar2.[n1],~azar1.[n1],~elar1.[n1]);
+timbr=Spherical(~timbrsm1.[n1],~timbrsa1.[n1],~timbrse1.[n1]);
 ~azimuth1=timbr.theta;
 ~elevation1=timbr.phi;
 ~shape2=timbr.rho;
@@ -1118,7 +1146,7 @@ timbr=Spherical(~magar2.[n1],~azar1.[n1],~elar1.[n1]);
 };
 }).play(~clock);
 }.defer
-);
+)*/
 
 ~pattern = Pdef(\1,
 Pbind(\instrument, \synth,
