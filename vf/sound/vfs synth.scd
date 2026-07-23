@@ -90,9 +90,9 @@ scale=~fuse;
 scale1=~fuse1;
 scale2=~fuse2;
 harm=~harm;
-anglex=Spherical(1,pi.rand2,0.5pi.rand2).rotateXY(~mod).x*pi;
-angley=Spherical(1,pi.rand2,0.5pi.rand2).rotateXY(~mod).y*pi;
-anglez=Spherical(1,pi.rand2,0.5pi.rand2).rotateXY(~mod).z*pi;
+anglex=Spherical(1,pi.rand2,0.5pi.rand2).rotateXY(0.01).x*pi;
+angley=Spherical(1,pi.rand2,0.5pi.rand2).rotateXY(0.01).y*pi;
+anglez=Spherical(1,pi.rand2,0.5pi.rand2).rotateXY(0.01).z*pi;
 
 m_x=m_y=m_z=harm;
 mq=harm+1;
@@ -462,14 +462,14 @@ nn=1.neg;
 SynthDef.new(\synth,{
 arg gain=1,lowend=20,s_size=1,room=1,drive=0,au=0,sb=0,mag1=1,elosc=1,
 c=0,timbr=1,az=0,el=0,dicay=2,attack=2,sc=20,ssc=1,mix=0,rect=16,s1,s2,s3,s4,
-busArray = #[0,1,2,3];
+busArray = #[0,1,2,3],dist=1;
 var fund,fu=32,n=0,mod_x,mod_y,mod_z,phasex,phasey,phasez,low=0,tremolo=64;
 var freq1,freq2,freq3,amp1,amp2,amp3,sig1,sig2,sig3,heavy;
 var b_x,b_y,b_z,polytope,env,expansion,sph1,sph2,envf,pan;
 var g_ch1,g_ch2,g_ch3,g_ch4,mp,mps,mpf;
 var s_x,s_y,s_z,threshold,c1,c2,c3,mp_x,mp_y,mp_z,mps_x,mps_y,mps_z,mpf_x,mpf_y,mpf_z;
 var peak, times,signal,rip,enva,key,attackLen,sustainLen,decayLen,tx,ty,tz;
-var vanish=4,dist=(2/3);
+var vanish=2,perspective;
 
 //envf=EnvGen.ar(Env.new([0,0,pi,pi,2pi],[(dicay/2),(attack/2),(dicay/2),(attack/2)]),doneAction:0);
 
@@ -485,7 +485,7 @@ enva = Env(rip.asArray, times);
 env = EnvGen.ar(enva,doneAction:2)*gain;
 //env = EnvGen.ar(Env.perc(attack,dicay,gain),doneAction:2);
 
-pan=LFNoise0.ar(elosc,pi);
+pan=LFNoise1.ar(elosc,pi);
 
 expansion=2.pow(c.lag(0.01)/16256);
 fund=(fu*(9/8))*expansion;
@@ -530,6 +530,7 @@ amp1=b_x.reciprocal*expansion.reciprocal*s_x.reciprocal;
 amp2=b_y.reciprocal*expansion.reciprocal*s_y.reciprocal;
 amp3=b_z.reciprocal*expansion.reciprocal*s_z.reciprocal;
 
+perspective = dist / (dist + b_z.reciprocal + (dist/vanish));
 //mod_x=mpf_x;
 //mod_y=mpf_y;
 //mod_z=mpf_z;
@@ -573,8 +574,8 @@ sig2=(sig2*mix.linexp(0,1,0.1,1.333)).softclip;
 sig3=(sig3*mix.linexp(0,1,0.1,1.333)).softclip;
 
 //////propagation
-sig1=sig1*mp_x.sign;
-sig2=sig2*mp_y.sign;
+sig1=sig1*mp_x.sign*perspective;
+sig2=sig2*mp_y.sign*perspective;
 sig3=sig3*mp_z.sign;
 
 ///spectral compensation
@@ -672,14 +673,14 @@ Out.ar(busArray.[11],LeakDC.ar(sig3*env*g_ch4));
 SynthDef.new(\synthb,{
 arg gain=1,lowend=20,s_size=1,room=1,drive=0,au=0,sb=0,mag1=1,elosc=1,
 c=0,timbr=1,az=0,el=0,dicay=2,attack=2,sc=20,ssc=1,mix=0,rect=16,s1,s2,s3,s4,
-busArray = #[0,1,2,3];
+busArray = #[0,1,2,3],dist=1;
 var fund,fu=32,n=0,mod_x,mod_y,mod_z,phasex,phasey,phasez,low=0,tremolo=64;
 var freq1,freq2,freq3,amp1,amp2,amp3,sig1,sig2,sig3,heavy;
 var b_x,b_y,b_z,polytope,env,expansion,sph1,sph2,envf,pan;
 var g_ch1,g_ch2,g_ch3,g_ch4,mp,mps,mpf;
 var s_x,s_y,s_z,threshold,c1,c2,c3,mp_x,mp_y,mp_z,mps_x,mps_y,mps_z,mpf_x,mpf_y,mpf_z;
 var peak, times,signal,rip,enva,key,attackLen,sustainLen,decayLen,tx,ty,tz;
-var vanish=4,dist=(2/3);
+var vanish=2,perspective;
 
 //envf=EnvGen.ar(Env.new([0,0,pi,pi,2pi],[(dicay/2),(attack/2),(dicay/2),(attack/2)]),doneAction:0);
 
@@ -694,7 +695,7 @@ times =Array.fill(peak, attack / peak) ++ Array.fill(signal.size - peak - 1, dic
 enva = Env(rip.asArray, times);
 env = EnvGen.ar(enva,doneAction:2)*gain*2;
 
-pan=LFNoise0.ar(elosc,pi);
+pan=LFNoise1.ar(elosc,pi.neg);
 
 expansion=2.pow(c.lag(0.01)/16256);
 fund=(fu*(9/8))*expansion;
@@ -739,6 +740,7 @@ amp1=b_x.reciprocal*expansion.reciprocal*s_x.reciprocal;
 amp2=b_y.reciprocal*expansion.reciprocal*s_y.reciprocal;
 amp3=b_z.reciprocal*expansion.reciprocal*s_z.reciprocal;
 
+perspective = dist / (dist + b_z.reciprocal + (dist/vanish));
 //mod_x=mpf_x;
 //mod_y=mpf_y;
 //mod_z=mpf_z;
@@ -781,8 +783,8 @@ sig2=(sig2*mix.linexp(0,1,0.1,1.33)).softclip;
 sig3=(sig3*mix.linexp(0,1,0.1,1.33)).softclip;
 
 //////propagation
-sig1=sig1*mp_x.sign;
-sig2=sig2*mp_y.sign;
+sig1=sig1*mp_x.sign*perspective;
+sig2=sig2*mp_y.sign*perspective;
 sig3=sig3*mp_z.sign;
 
 ///spectral compensation
@@ -1022,10 +1024,10 @@ word.do({|i| ~lseq = ~lseq ++ dictnotes[i.asSymbol];});
 }.value);
 ~gain=1;~drive=0;~c=0;~attack=0.01;~decay=1;~s_size=1;~lowend=20;~room=0;~sscb=26;~pan1=0.001;~pan2=0.001;
 ~gainb=1;~driveb=0;~cb=0;~attackb=0.01;~decayb=1;~s_sizeb=1;~lowendb=20;~roomb=0;~scb=1;
-~incr1=0;~incr2=0;~sc=1;~gold=((1+5.sqrt)/2);~silver=(1+2.sqrt);~mixb=0;~rectb=16;
+~incr1=0;~incr2=0;~sc=1;~gold=((1+5.sqrt)/2);~silver=(1+2.sqrt);~mixb=0;~rectb=16;~dist1=1;~dist2=1;
 ~incr=0;~ssc=26;~mix=0;~rect=16;~s=0;~azimuth=1;~elevation=1;~azimuth1=1;~elevation1=1;
 ~alternating=[0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1];~hor=0;~lat=0;~shape1=1;~shape2=1;
-~azar=[];~azar1=[];~elar=[];~elar1=[];~magar1=[];~magar2=[];
+//~azar=[];~azar1=[];~elar=[];~elar1=[];~magar1=[];~magar2=[];
 //~seq= Pseq([~dur.[0],Rest(~dur.[13.rand]),~dur.[1],Rest(~dur.[13.rand]),~dur.[2],Rest(~dur.[13.rand]),~dur.[3]] ,inf);
 ~tempo=1;
 TempoClock.default.tempo_(1);
@@ -1052,14 +1054,22 @@ c=[~dur.[6]+~dur.[7]+~dur.[8]];
 d=[~dur.[9]+~dur.[10]+~dur.[11]];
 ~durt=a++b++c++d;
 }.value);
+~clock = TempoClock(1);
+~clockb = TempoClock(1);
+(
+{
+Routine({loop{
+~nn=~set.rand;
+(60).wait; // frame duration
+};
+}).play(~clock);
+}.defer
+);
 
 ~dursum=~dur.sum;
 ~nn=~set.rand;
 ~seqt= Pseq(~durt ,inf).asStream;
 ~seqt1= Pseq(~dur ,inf).asStream;
-~clock = TempoClock(1);
-~clockb = TempoClock(1);
-(
 {
 var x,y,z,px,py,pz,x1,y1,z1,px1,py1,pz1;
 Routine({loop{
@@ -1099,7 +1109,7 @@ pz1=~cz.[x1];
 ~azimuth1=Cartesian(px1,py1,pz1).theta;
 ~elevation1=Cartesian(px1,py1,pz1).phi;
 //};
-(0.01).wait; // frame duration
+(0.05).wait; // frame duration
 };
 }).play(~clock);
 }.defer
@@ -1152,7 +1162,7 @@ timbr=Spherical(~timbrsm1.[n1],~timbrsa1.[n1],~timbrse1.[n1]);
 ~pattern = Pdef(\1,
 Pbind(\instrument, \synth,
 \dur, Pseq(~dur ,inf),\s_size,Pfunc { ~s_size }, \lowend,Pfunc { ~lowend }, \room,Pfunc { ~room },
-\gain,Pfunc { ~gain }, \sc, Pfunc { ~sc },\drive, Pfunc { ~drive },
+\gain,Pfunc { ~gain }, \sc, Pfunc { ~sc },\drive, Pfunc { ~drive },\dist, Pfunc { ~dist1 },
 \au,Pseq([0,1,4,3,6,5,9],inf),\sb,Pseq(~alternating,inf),\elosc, Pfunc { ~pan1 },
 \c, Pfunc { ~c },\mix, Pfunc{~mix},\rect,Pfunc{~rect},\mag1,Pfunc{~shape1},
 \az, Pfunc{ ~azimuth},\el,Pfunc{ ~elevation},
@@ -1164,7 +1174,7 @@ Pbind(\instrument, \synth,
 
 ~patternb =Pbind(\instrument, \synthb,
 \dur, Pseq(~dur ,inf),\s_size,Pfunc { ~s_sizeb }, \lowend,Pfunc { ~lowendb }, \room,Pfunc { ~roomb },
-\gain,Pfunc { ~gainb }, \sc, Pfunc { ~scb },\drive, Pfunc { ~driveb },
+\gain,Pfunc { ~gainb }, \sc, Pfunc { ~scb },\drive, Pfunc { ~driveb },\dist, Pfunc { ~dist2},
 \au,Pseq([0,1,4,3,6,5,9],inf),\sb,Pseq(~alternating.reverse,inf),\elosc, Pfunc { ~pan2 },
 \c, Pfunc { ~cb },\mix, Pfunc{~mixb},\rect,Pfunc{~rectb},\mag1,Pfunc{~shape2},
 \az, Pfunc{~azimuth1},\el,Pfunc{~elevation1},
@@ -1492,11 +1502,10 @@ value=obj.value.linlin(0,1,1,4).round(1).postln;
 ~sl20=Knob.new(~vw1, Rect.new(450,(50+sk+50+sk+25+25+sk+50+sk+50),sk, sk)).background_(Color.black).action_({
 arg obj;
 var value,v;
-value=obj.value.linlin(0,1,0,pi).postln;
-v=obj.value.linlin(0,1,0,~set).round(1).asInteger.postln;
-~nn=v;
+value=obj.value.linexp(0,1,0.01,10).postln;
+~dist1=value;
 });
-~sl20=StaticText(~vw1,Rect(450,(50+sk+50+sk+25+25+sk+50+sk+50+sk),sk+20,sk)).string_("~mod")
+~sl20=StaticText(~vw1,Rect(450,(50+sk+50+sk+25+25+sk+50+sk+50+sk),sk+20,sk)).string_("dist")
 .stringColor_(Color.white).background_(Color.black).font_(Font('Arial',16));
 );
 }.defer
@@ -1818,12 +1827,10 @@ value=obj.value.linlin(0,1,1,4).round(1).postln;
 ~sl20b=Knob.new(~vw, Rect.new(450,(50+sk+50+sk+25+25+sk+50+sk+50),sk, sk)).background_(Color.black).action_({
 arg obj;
 var value,v;
-value=obj.value.linlin(0,1,0,pi).postln;
-v=obj.value.linlin(0,1,0,~set).round(1).asInteger.postln;
-~nn=v;
-~mod=value;
+value=obj.value.linexp(0,1,0.01,10).postln;
+~dist2=value;
 });
-~sl20b=StaticText(~vw,Rect(450,(50+sk+50+sk+25+25+sk+50+sk+50+sk),sk+20,sk)).string_("~mod")
+~sl20b=StaticText(~vw,Rect(450,(50+sk+50+sk+25+25+sk+50+sk+50+sk),sk+20,sk)).string_("dist")
 .stringColor_(Color.white).background_(Color.black).font_(Font('Arial',16));
 );
 }.defer
